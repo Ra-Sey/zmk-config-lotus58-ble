@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/zmkfirmware/zmk-build:latest
-      options: --privileged
     
     steps:
       - name: Checkout Configuration
@@ -20,8 +17,34 @@ jobs:
           path: config
           fetch-depth: 0
 
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python3 python3-pip python3-venv \
+            git cmake ninja-build \
+            gcc-arm-none-eabi \
+            device-tree-compiler \
+            dfu-util
+
+      - name: Setup Python Environment
+        run: |
+          python3 -m venv ~/.venv
+          source ~/.venv/bin/activate
+          pip install --upgrade pip
+          pip install west
+
+      - name: Cache Zephyr SDK
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/west/zmk
+          key: ${{ runner.os }}-zmk-${{ hashFiles('west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-zmk-
+
       - name: Initialize West Workspace
         run: |
+          source ~/.venv/bin/activate
           mkdir -p zmk
           cd zmk
           git init
@@ -35,10 +58,12 @@ jobs:
 
       - name: Build Left Half
         run: |
+          source ~/.venv/bin/activate
           west build -b lotus58_ble_left -- -DCONFIG_ZMK_USB=y
 
       - name: Build Right Half
         run: |
+          source ~/.venv/bin/activate
           west build -b lotus58_ble_right -- -DCONFIG_ZMK_USB=y
 
       - name: Collect and Rename Artifacts
