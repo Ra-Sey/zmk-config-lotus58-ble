@@ -8,6 +8,3 @@ manifest:
       remote: zmk
       revision: main
       import: app/west.yml
-  
-  self:
-    path: config

@@ -15,7 +15,6 @@ jobs:
       - name: Checkout Configuration
         uses: actions/checkout@v4
         with:
-          path: config
           fetch-depth: 0
 
       - name: Install System Dependencies
@@ -35,42 +34,34 @@ jobs:
           pip install --upgrade pip
           pip install west
 
-      - name: Clone ZMK
+      - name: Initialize West Workspace
         run: |
           source ~/.venv/bin/activate
-          git clone --recursive --depth 1 https://github.com/zmkfirmware/zmk.git zmk
-
-      - name: Update West in ZMK
-        run: |
-          source ~/.venv/bin/activate
-          cd zmk
+          west init
           west update
-          cd ..
 
-      - name: Copy Config to ZMK
+      - name: Copy Board Configuration
         run: |
           source ~/.venv/bin/activate
-          cp -r config/boards/* zmk/app/boards/
-          cp -r config/zephyr/* zmk/zephyr/
+          cp -r boards zmk/app/
+          cp -r zephyr zmk/
 
       - name: Build Left Half
         run: |
           source ~/.venv/bin/activate
-          cd zmk
           west build -b lotus58_ble_left -- -DCONFIG_ZMK_USB=y
 
       - name: Build Right Half
         run: |
           source ~/.venv/bin/activate
-          cd zmk
           west build -b lotus58_ble_right -- -DCONFIG_ZMK_USB=y
 
       - name: Collect Artifacts
         run: |
           mkdir -p artifacts
-          find zmk/build -name "*.uf2" -exec cp {} artifacts/ \;
-          find zmk/build -name "*.hex" -exec cp {} artifacts/ \;
-          find zmk/build -name "*.bin" -exec cp {} artifacts/ \;
+          find build -name "*.uf2" -exec cp {} artifacts/ \;
+          find build -name "*.hex" -exec cp {} artifacts/ \;
+          find build -name "*.bin" -exec cp {} artifacts/ \;
           ls -la artifacts/
 
       - name: Upload Firmware Artifacts
