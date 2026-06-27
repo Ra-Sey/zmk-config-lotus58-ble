@@ -1,0 +1,68 @@
+name: Release ZMK Firmware
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/zmkfirmware/zmk-build:latest
+      options: --privileged
+    
+    steps:
+      - name: Checkout Configuration
+        uses: actions/checkout@v4
+        with:
+          path: config
+          fetch-depth: 0
+
+      - name: Initialize West Workspace
+        run: |
+          mkdir -p zmk
+          cd zmk
+          git init
+          git remote add origin https://github.com/zmkfirmware/zmk.git
+          git fetch --depth=1 origin main
+          git checkout main
+          git submodule update --init --recursive
+          cd ..
+          west init -l config
+          west update
+
+      - name: Build Left Half
+        run: |
+          west build -b lotus58_ble_left -- -DCONFIG_ZMK_USB=y
+
+      - name: Build Right Half
+        run: |
+          west build -b lotus58_ble_right -- -DCONFIG_ZMK_USB=y
+
+      - name: Collect and Rename Artifacts
+        run: |
+          mkdir -p release
+          # Left half
+          cp build/zephyr/lotus58_ble_left.uf2 release/lotus58_ble_left-${GITHUB_REF_NAME}.uf2
+          cp build/zephyr/lotus58_ble_left.hex release/lotus58_ble_left-${GITHUB_REF_NAME}.hex
+          # Right half
+          cp build/zephyr/lotus58_ble_right.uf2 release/lotus58_ble_right-${GITHUB_REF_NAME}.uf2
+          cp build/zephyr/lotus58_ble_right.hex release/lotus58_ble_right-${GITHUB_REF_NAME}.hex
+          ls -la release/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zmk-firmware-release-${{ github.ref_name }}
+          path: release/

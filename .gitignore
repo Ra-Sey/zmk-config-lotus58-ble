@@ -1,0 +1,27 @@
+# Build artifacts
+build/
+zephyr/
+
+# West workspace
+zmk/
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log

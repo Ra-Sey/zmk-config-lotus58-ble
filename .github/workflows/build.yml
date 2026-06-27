@@ -1,0 +1,58 @@
+name: Build ZMK Firmware
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/zmkfirmware/zmk-build:latest
+      options: --privileged
+    
+    steps:
+      - name: Checkout Configuration
+        uses: actions/checkout@v4
+        with:
+          path: config
+          fetch-depth: 0
+
+      - name: Initialize West Workspace
+        run: |
+          mkdir -p zmk
+          cd zmk
+          git init
+          git remote add origin https://github.com/zmkfirmware/zmk.git
+          git fetch --depth=1 origin main
+          git checkout main
+          git submodule update --init --recursive
+          cd ..
+          west init -l config
+          west update
+
+      - name: Build Left Half
+        run: |
+          west build -b lotus58_ble_left -- -DCONFIG_ZMK_USB=y
+
+      - name: Build Right Half
+        run: |
+          west build -b lotus58_ble_right -- -DCONFIG_ZMK_USB=y
+
+      - name: Collect Artifacts
+        run: |
+          mkdir -p artifacts
+          find build -name "*.uf2" -exec cp {} artifacts/ \;
+          find build -name "*.hex" -exec cp {} artifacts/ \;
+          find build -name "*.bin" -exec cp {} artifacts/ \;
+          ls -la artifacts/
+
+      - name: Upload Firmware Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zmk-firmware-lotus58_ble
+          path: artifacts/
+          if-no-files-found: error
