@@ -34,48 +34,35 @@ jobs:
           pip install --upgrade pip
           pip install west
 
-      - name: Cache Zephyr SDK
-        uses: actions/cache@v3
-        with:
-          path: ~/.local/share/west/zmk
-          key: ${{ runner.os }}-zmk-${{ hashFiles('west.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-zmk-
-
-      - name: Initialize West Workspace
+      - name: Clone ZMK
         run: |
           source ~/.venv/bin/activate
-          mkdir -p zmk
+          git clone --recursive --depth 1 https://github.com/zmkfirmware/zmk.git zmk
+
+      - name: Update West in ZMK
+        run: |
+          source ~/.venv/bin/activate
           cd zmk
-          git init
-          git remote add origin https://github.com/zmkfirmware/zmk.git
-          git fetch --depth=1 origin main
-          git checkout main
-          git submodule update --init --recursive
-          cd ..
-          west init -l config
           west update
+          cd ..
 
       - name: Copy Config to ZMK
         run: |
           source ~/.venv/bin/activate
-          # Copy board configuration to ZMK
-          cp -r config/boards zmk/app/boards
-          cp -r config/zephyr zmk/zephyr
+          cp -r config/boards/* zmk/app/boards/
+          cp -r config/zephyr/* zmk/zephyr/
 
       - name: Build Left Half
         run: |
           source ~/.venv/bin/activate
           cd zmk
           west build -b lotus58_ble_left -- -DCONFIG_ZMK_USB=y
-          cd ..
 
       - name: Build Right Half
         run: |
           source ~/.venv/bin/activate
           cd zmk
           west build -b lotus58_ble_right -- -DCONFIG_ZMK_USB=y
-          cd ..
 
       - name: Collect and Rename Artifacts
         run: |
