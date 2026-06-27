@@ -56,25 +56,36 @@ jobs:
           west init -l config
           west update
 
+      - name: Copy Config to ZMK
+        run: |
+          source ~/.venv/bin/activate
+          # Copy board configuration to ZMK
+          cp -r config/boards zmk/app/boards
+          cp -r config/zephyr zmk/zephyr
+
       - name: Build Left Half
         run: |
           source ~/.venv/bin/activate
+          cd zmk
           west build -b lotus58_ble_left -- -DCONFIG_ZMK_USB=y
+          cd ..
 
       - name: Build Right Half
         run: |
           source ~/.venv/bin/activate
+          cd zmk
           west build -b lotus58_ble_right -- -DCONFIG_ZMK_USB=y
+          cd ..
 
       - name: Collect and Rename Artifacts
         run: |
           mkdir -p release
           # Left half
-          cp build/zephyr/lotus58_ble_left.uf2 release/lotus58_ble_left-${GITHUB_REF_NAME}.uf2
-          cp build/zephyr/lotus58_ble_left.hex release/lotus58_ble_left-${GITHUB_REF_NAME}.hex
+          cp zmk/build/zephyr/lotus58_ble_left.uf2 release/lotus58_ble_left-${GITHUB_REF_NAME}.uf2
+          cp zmk/build/zephyr/lotus58_ble_left.hex release/lotus58_ble_left-${GITHUB_REF_NAME}.hex
           # Right half
-          cp build/zephyr/lotus58_ble_right.uf2 release/lotus58_ble_right-${GITHUB_REF_NAME}.uf2
-          cp build/zephyr/lotus58_ble_right.hex release/lotus58_ble_right-${GITHUB_REF_NAME}.hex
+          cp zmk/build/zephyr/lotus58_ble_right.uf2 release/lotus58_ble_right-${GITHUB_REF_NAME}.uf2
+          cp zmk/build/zephyr/lotus58_ble_right.hex release/lotus58_ble_right-${GITHUB_REF_NAME}.hex
           ls -la release/
 
       - name: Create Release

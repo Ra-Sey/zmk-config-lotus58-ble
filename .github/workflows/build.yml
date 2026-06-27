@@ -57,22 +57,33 @@ jobs:
           west init -l config
           west update
 
+      - name: Copy Config to ZMK
+        run: |
+          source ~/.venv/bin/activate
+          # Copy board configuration to ZMK
+          cp -r config/boards zmk/app/boards
+          cp -r config/zephyr zmk/zephyr
+
       - name: Build Left Half
         run: |
           source ~/.venv/bin/activate
+          cd zmk
           west build -b lotus58_ble_left -- -DCONFIG_ZMK_USB=y
+          cd ..
 
       - name: Build Right Half
         run: |
           source ~/.venv/bin/activate
+          cd zmk
           west build -b lotus58_ble_right -- -DCONFIG_ZMK_USB=y
+          cd ..
 
       - name: Collect Artifacts
         run: |
           mkdir -p artifacts
-          find build -name "*.uf2" -exec cp {} artifacts/ \;
-          find build -name "*.hex" -exec cp {} artifacts/ \;
-          find build -name "*.bin" -exec cp {} artifacts/ \;
+          find zmk/build -name "*.uf2" -exec cp {} artifacts/ \;
+          find zmk/build -name "*.hex" -exec cp {} artifacts/ \;
+          find zmk/build -name "*.bin" -exec cp {} artifacts/ \;
           ls -la artifacts/
 
 
