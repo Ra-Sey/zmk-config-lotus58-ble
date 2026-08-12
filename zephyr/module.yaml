@@ -1,5 +1,0 @@
----
-name: lotus58_ble
-build:
-  settings:
-    board_root: .
