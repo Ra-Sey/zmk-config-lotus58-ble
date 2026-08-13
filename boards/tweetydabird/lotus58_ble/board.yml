@@ -1,0 +1,10 @@
+---
+boards:
+  - name: lotus58_ble_left
+    vendor: tweetydabird
+    socs:
+      - name: nrf52840
+  - name: lotus58_ble_right
+    vendor: tweetydabird
+    socs:
+      - name: nrf52840

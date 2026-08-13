@@ -2,6 +2,9 @@
 
 if BOARD_LOTUS58_BLE_LEFT
 
+config BOARD
+    default "lotus58_ble left"
+
 config ZMK_KEYBOARD_NAME
     default "Lotus58 BLE"
 
@@ -10,11 +13,14 @@ config ZMK_SPLIT_ROLE_CENTRAL
 
 endif # BOARD_LOTUS58_BLE_LEFT
 
-
-if BOARD_LOTUS58_BLE_LEFT || BOARD_LOTUS58_BLE_RIGHT
+if BOARD_LOTUS58_BLE_RIGHT
 
 config BOARD
-    default "lotus58_ble"
+    default "lotus58_ble right"
+
+endif # BOARD_LOTUS58_BLE_RIGHT
+
+if BOARD_LOTUS58_BLE_LEFT || BOARD_LOTUS58_BLE_RIGHT
 
 config ZMK_SPLIT
     default y
@@ -22,6 +28,8 @@ config ZMK_SPLIT
 config BT_CTLR
     default BT
 
+config PINCTRL
+    default y
 
 if USB
 

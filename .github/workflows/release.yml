@@ -8,63 +8,32 @@ on:
 
 jobs:
   build:
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
+    with:
+      archive_name: firmware
+
+  release:
     runs-on: ubuntu-latest
-    
+    needs: build
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout Configuration
-        uses: actions/checkout@v4
+      - name: Download Firmware Artifacts
+        uses: actions/download-artifact@v4
         with:
-          fetch-depth: 0
+          name: firmware
+          path: release
 
-      - name: Install System Dependencies
+      - name: Rename Artifacts With Release Tag
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            python3 python3-pip python3-venv \
-            git cmake ninja-build \
-            gcc-arm-none-eabi \
-            device-tree-compiler \
-            dfu-util
-
-      - name: Setup Python Environment
-        run: |
-          python3 -m venv ~/.venv
-          source ~/.venv/bin/activate
-          pip install --upgrade pip
-          pip install west
-
-      - name: Initialize West Workspace
-        run: |
-          source ~/.venv/bin/activate
-          west init
-          west update
-
-      - name: Copy Board Configuration
-        run: |
-          source ~/.venv/bin/activate
-          cp -r boards zmk/app/
-          cp -r zephyr zmk/
-
-      - name: Build Left Half
-        run: |
-          source ~/.venv/bin/activate
-          west build -b lotus58_ble_left -- -DCONFIG_ZMK_USB=y
-
-      - name: Build Right Half
-        run: |
-          source ~/.venv/bin/activate
-          west build -b lotus58_ble_right -- -DCONFIG_ZMK_USB=y
-
-      - name: Collect and Rename Artifacts
-        run: |
-          mkdir -p release
-          # Left half
-          cp build/zephyr/lotus58_ble_left.uf2 release/lotus58_ble_left-${GITHUB_REF_NAME}.uf2
-          cp build/zephyr/lotus58_ble_left.hex release/lotus58_ble_left-${GITHUB_REF_NAME}.hex
-          # Right half
-          cp build/zephyr/lotus58_ble_right.uf2 release/lotus58_ble_right-${GITHUB_REF_NAME}.uf2
-          cp build/zephyr/lotus58_ble_right.hex release/lotus58_ble_right-${GITHUB_REF_NAME}.hex
-          ls -la release/
+          cd release
+          for f in *; do
+            ext="${f##*.}"
+            base="${f%.*}"
+            mv "$f" "${base}-${GITHUB_REF_NAME}.${ext}"
+          done
+          ls -la
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -74,9 +43,3 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Release Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: zmk-firmware-release-${{ github.ref_name }}
-          path: release/

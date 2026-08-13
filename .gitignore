@@ -1,6 +1,11 @@
 # Build artifacts
 build/
-zephyr/
+
+# Local Zephyr RTOS checkout (from `west update`), but keep our own
+# zephyr/module.yml which declares this repo as a Zephyr module for the
+# out-of-tree board definition under boards/.
+zephyr/*
+!zephyr/module.yml
 
 # West workspace
 zmk/
