@@ -14,6 +14,18 @@ CONFIG_GPIO=y
 CONFIG_USE_DT_CODE_PARTITION=y
 CONFIG_BUILD_OUTPUT_UF2=y
 
+# 32.768 kHz low-frequency clock source.
+# The board has a 32.768 kHz crystal (Y1 on XL1/XL2), but it does not actually
+# oscillate -- verified over SWD: requesting LFCLK from XTAL never sets
+# EVENTS_LFCLKSTARTED (still 0 after 1.5 s), while RC starts instantly.
+# Zephyr's default is XTAL, and the BLE controller blocks in bt_enable()
+# waiting for a *stable* LF clock, which stalls the whole APPLICATION-level
+# SYS_INIT chain in the main thread -- so USB was never initialised either and
+# the board sat in the idle thread forever. Use the internal RC oscillator
+# (same as nice!nano, which uses the same E73-2G4M08S1C module).
+CONFIG_CLOCK_CONTROL_NRF_K32SRC_RC=y
+CONFIG_CLOCK_CONTROL_NRF_K32SRC_500PPM=y
+
 # Enable writing to flash
 CONFIG_MPU_ALLOW_FLASH_WRITE=y
 CONFIG_NVS=y
