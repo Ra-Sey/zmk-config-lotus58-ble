@@ -9,12 +9,15 @@
     keymap {
         compatible = "zmk,keymap";
 
+        // Every layer must hold exactly 58 bindings, matching keymap_transform_0:
+        // 12 + 12 + 12 + 14 (row 4 carries the inner thumb key of both halves) + 8.
+        // The default layer assigns a unique keycode to every position so that a
+        // single press identifies the position it came from.
         default_layer {
-            label = "BASE";
             bindings = <
                 &kp GRAVE     &kp N1  &kp N2  &kp N3  &kp N4  &kp N5                                    &kp N6  &kp N7    &kp N8    &kp N9  &kp N0     &kp MINUS
                 &kp EQUAL     &kp Q   &kp W   &kp E   &kp R   &kp T                                     &kp Y   &kp U     &kp I     &kp O   &kp P      &kp LBKT
-                &kp RBKT      &kp A   &kp S   &kp D   &kp F   &kp G   &kp BSLH        &kp LS(MINUS)     &kp H   &kp J     &kp K     &kp L   &kp SEMI   &kp SQT
+                &kp RBKT      &kp A   &kp S   &kp D   &kp F   &kp G                                     &kp H   &kp J     &kp K     &kp L   &kp SEMI   &kp SQT
                 &kp LS(EQUAL) &kp Z   &kp X   &kp C   &kp V   &kp B   &kp LS(LBKT)    &kp LS(RBKT)      &kp N   &kp M     &kp COMMA &kp DOT &kp FSLH   &kp LS(SEMI)
                                               &kp LS(SQT) &kp LS(GRAVE) &kp LS(COMMA) &kp LS(DOT)       &kp LS(FSLH) &kp LS(N1) &kp LS(N2) &kp LS(N3)
             >;
@@ -29,7 +32,7 @@
             bindings = <
 &trans &trans &trans &trans &trans &trans                  &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &trans                  &trans &trans &trans &trans &trans &trans
-&trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans                  &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans
                      &trans &trans &trans &trans    &trans &trans &trans &trans
             >;
@@ -44,7 +47,7 @@
             bindings = <
 &trans &trans &trans &trans &trans &trans                  &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &trans                  &trans &trans &trans &trans &trans &trans
-&trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans                  &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans
                      &trans &trans &trans &trans    &trans &trans &trans &trans
             >;
