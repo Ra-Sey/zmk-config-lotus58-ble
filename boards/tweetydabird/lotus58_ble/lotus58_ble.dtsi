@@ -105,18 +105,12 @@
         ;
   };
 
-/*
-  left_encoder: encoder_left {
-    compatible = "alps,ec11";
-    a-gpios = <&gpio1 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-    b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-    steps = <80>;
-    status = "disabled";
-  };
-
+  // The rotary encoder footprint exists on both halves' PCB but is only
+  // populated on the right half. Pins per Lotus58_BLE.kicad_sch (v1.20):
+  // EncA -> P1.11, EncB -> P1.13. Disabled here, enabled in lotus58_ble_right.dts.
   right_encoder: encoder_right {
     compatible = "alps,ec11";
-    a-gpios = <&gpio1 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+    a-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
     b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
     steps = <80>;
     status = "disabled";
@@ -124,10 +118,9 @@
 
   sensors: sensors {
     compatible = "zmk,keymap-sensors";
-    sensors = <&left_encoder &right_encoder>;
+    sensors = <&right_encoder>;
     triggers-per-rotation = <20>;
   };
-*/
 
   vbatt: vbatt {
     compatible = "zmk,battery-nrf-vddh";
@@ -150,16 +143,18 @@
   status = "okay";
 };
 
-/*
+// SPI bus for the nice!view display, populated only on the right half.
+// Pins per schematic: SCK -> P0.29, MOSI -> P0.30, CS -> P0.31. Left disabled
+// by default (inherited from the SoC .dtsi); the "nice_view" shield's own
+// overlay sets status = "okay" and adds the display node when applied to the
+// right build (see build.yaml).
 nice_view_spi: &spi1 {
-  status = "okay";
   compatible = "nordic,nrf-spim";
   pinctrl-0 = <&spi1_default>;
   pinctrl-1 = <&spi1_sleep>;
   pinctrl-names = "default", "sleep";
   cs-gpios = <&gpio0 31 GPIO_ACTIVE_LOW>;
 };
-*/
 
 zephyr_udc0: &usbd {
   status = "okay";

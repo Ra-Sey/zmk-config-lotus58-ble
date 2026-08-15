@@ -21,10 +21,8 @@
                 &kp LS(EQUAL) &kp Z   &kp X   &kp C   &kp V   &kp B   &kp LS(LBKT)    &kp LS(RBKT)      &kp N   &kp M     &kp COMMA &kp DOT &kp FSLH   &kp LS(SEMI)
                                               &kp LS(SQT) &kp LS(GRAVE) &kp LS(COMMA) &kp LS(DOT)       &kp LS(FSLH) &kp LS(N1) &kp LS(N2) &kp LS(N3)
             >;
-            sensor-bindings = <
-                &inc_dec_kp A B
-                &inc_dec_kp X Y
-            >;
+            // One entry per sensor in &sensors (currently just &right_encoder).
+            sensor-bindings = <&inc_dec_kp A B>;
             display-name = "UNIQUE";
         };
 
@@ -36,10 +34,8 @@
 &trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans
                      &trans &trans &trans &trans    &trans &trans &trans &trans
             >;
-            sensor-bindings = <
-                &inc_dec_kp A B
-                &inc_dec_kp X Y
-            >;
+            // One entry per sensor in &sensors (currently just &right_encoder).
+            sensor-bindings = <&inc_dec_kp A B>;
             display-name = "Lower";
         };
 
@@ -51,10 +47,8 @@
 &trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans
                      &trans &trans &trans &trans    &trans &trans &trans &trans
             >;
-            sensor-bindings = <
-                &inc_dec_kp A B
-                &inc_dec_kp X Y
-            >;
+            // One entry per sensor in &sensors (currently just &right_encoder).
+            sensor-bindings = <&inc_dec_kp A B>;
             display-name = "Raise";
         };
     };

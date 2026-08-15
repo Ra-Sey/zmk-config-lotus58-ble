@@ -41,46 +41,8 @@ config USB_DEVICE_STACK
 
 endif # USB
 
-# Uncomment the ZMK_DISPLAY and LVGL stuff to use the nice!view
-# display. It may need some adjustment to correctly match the Lotus58
-# BLE's actual hardware.
-
-# config ZMK_DISPLAY
-#     select LV_USE_CONT
-#     select LV_FONT_MONTSERRAT_26
-#     select LV_FONT_MONTSERRAT_16
-#     select LV_USE_LABEL
-#     select LV_USE_IMG
-
-# choice ZMK_DISPLAY_STATUS_SCREEN
-#     default ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
-# endchoice
-
-# if ZMK_DISPLAY
-
-# config SPI
-#     default y
-
-# config SPI_NRFX
-#     default y
-
-# endif # ZMK_DISPLAY
-
-# if LVGL
-
-# config LV_Z_VDB_SIZE
-#     default 64
-
-# config LV_DPI_DEF
-#     default 148
-
-# config LV_Z_BITS_PER_PIXEL
-#     default 1
-
-# choice LV_COLOR_DEPTH
-#     default LV_COLOR_DEPTH_1
-# endchoice
-
-# endif # LVGL
+# The nice!view display is populated only on the right half and is added by
+# applying the "nice_view" shield in build.yaml, which brings its own
+# Kconfig.defconfig (ZMK_DISPLAY, LVGL, SPI) scoped to SHIELD_NICE_VIEW.
 
 endif # BOARD_LOTUS58_BLE_LEFT || BOARD_LOTUS58_BLE_RIGHT
