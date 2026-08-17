@@ -6,6 +6,7 @@
 #include "lotus58_ble-pinctrl.dtsi"
 
 #include <dt-bindings/zmk/matrix_transform.h>
+#include <zephyr/dt-bindings/led/led.h>
 
 / {
     model = "Lotus58 BLE";
@@ -18,6 +19,7 @@
     zmk,kscan = &kscan0;
     zmk,physical-layout = &default_layout;
     zmk,battery = &vbatt;
+    zmk,underglow = &led_strip;
   };
 
   default_transform: keymap_transform_0 {
@@ -125,6 +127,19 @@
   vbatt: vbatt {
     compatible = "zmk,battery-nrf-vddh";
   };
+
+  // Underglow LED power gate. Pin per schematic: nRF52840 P1.09 -> R13 ->
+  // Q1 (2N7002 NMOS) -> gate of Q3 (AO3401A PMOS high-side switch) ->
+  // RGB_VDD. R5/R14 hold both FETs off by default, so this rail is
+  // powered only while this GPIO is driven high -- safe default-off at
+  // reset, matching the active-high enable-gpios polarity below.
+  glow_power: glow_power_control {
+    compatible = "regulator-fixed";
+    regulator-name = "glow-power-control";
+    enable-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+    regulator-boot-on;
+    regulator-always-on;
+  };
 };
 
 &adc {
@@ -166,6 +181,35 @@ zephyr_udc0: &usbd {
   pinctrl-0 = <&uart0_default>;
   pinctrl-1 = <&uart0_sleep>;
   pinctrl-names = "default", "sleep";
+};
+
+// RGB underglow (SK6812MINI-E, WS2812-compatible), driven bit-banged over
+// SPI MOSI per pin P0.05. 29 LEDs (RGB1..RGB29) are wired in one data
+// chain on the "KEY_VDD" power rail; a second, mutually exclusive 6-LED
+// chain (RGB30..RGB35, "GLOW_VDD") shares the same data-in net and is
+// selected instead of the first via a per-half slide switch
+// (PWR_SW3/PWR_SW4) or solder jumper (JP2) upstream of both rails.
+// chain-length is set to 29 to cover the larger of the two: whichever
+// group is actually powered by the switch position responds correctly,
+// the unpowered group simply never receives current regardless of what
+// is clocked out.
+&spi3 {
+  compatible = "nordic,nrf-spim";
+  status = "okay";
+  pinctrl-0 = <&spi3_default>;
+  pinctrl-1 = <&spi3_sleep>;
+  pinctrl-names = "default", "sleep";
+
+  led_strip: ws2812@0 {
+    compatible = "worldsemi,ws2812-spi";
+    reg = <0>;
+    spi-max-frequency = <4000000>;
+    spi-one-frame = <0x70>;
+    spi-zero-frame = <0x40>;
+
+    chain-length = <29>;
+    color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
+  };
 };
 
 &uicr {

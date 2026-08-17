@@ -41,4 +41,22 @@
       low-power-enable;
     };
   };
+
+  // RGB underglow data line. Pin per schematic: nRF52840 P0.05 -> U4
+  // (SN74LV1T34 level-shifting buffer) -> RGB_RES -> DIN of the first
+  // SK6812MINI-E in the chain. uart0 is disabled by default (see
+  // lotus58_ble.dtsi), so its UART_RTS claim on the same pin is never
+  // applied and does not conflict with this at runtime.
+  spi3_default: spi3_default {
+    group1 {
+      psels = <NRF_PSEL(SPIM_MOSI, 0, 5)>;
+    };
+  };
+
+  spi3_sleep: spi3_sleep {
+    group1 {
+      psels = <NRF_PSEL(SPIM_MOSI, 0, 5)>;
+      low-power-enable;
+    };
+  };
 };
