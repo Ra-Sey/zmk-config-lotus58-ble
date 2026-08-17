@@ -45,9 +45,14 @@ CONFIG_SPI=y
 CONFIG_LED_STRIP=y
 CONFIG_REGULATOR=y
 CONFIG_REGULATOR_FIXED=y
+# No zmk,ext-power-generic devicetree node exists yet for the P1.09 power
+# gate, so leave the (Kconfig-default-y) ext-power integration disabled --
+# ZMK_RGB_UNDERGLOW_EXT_POWER requires DT_INST(0, zmk_ext_power_generic) to
+# resolve, which fails the build without such a node.
+CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER=n
 CONFIG_ZMK_RGB_UNDERGLOW=y
 CONFIG_ZMK_RGB_UNDERGLOW_ON_START=y
-CONFIG_ZMK_RGB_UNDERGLOW_EFFECT_START=3
+CONFIG_ZMK_RGB_UNDERGLOW_EFF_START=3
 CONFIG_ZMK_RGB_UNDERGLOW_SAT_START=100
 CONFIG_ZMK_RGB_UNDERGLOW_BRT_START=100
 CONFIG_ZMK_RGB_UNDERGLOW_SPD_START=3

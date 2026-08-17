@@ -7,8 +7,14 @@ build/
 zephyr/*
 !zephyr/module.yml
 
-# West workspace
+# West workspace (created by `west init`/`west update` when building
+# locally, see docs/local-build.md)
+.west/
 zmk/
+modules/
+bootloader/
+tools/
+.build-home/
 
 # IDE/Editor files
 .idea/
